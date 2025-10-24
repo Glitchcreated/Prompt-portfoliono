@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"> <!-- Default to dark mode -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Portfolio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Base styling */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Custom scrollbar for dark mode */
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937; /* dark:bg-gray-800 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #4b5563; /* dark:bg-gray-600 */
+            border-radius: 20px;
+            border: 3px solid #1f2937; /* dark:bg-gray-800 */
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #6b7280; /* dark:bg-gray-500 */
+        }
+        
+        /* Light mode scrollbar */
+        html.light ::-webkit-scrollbar-track {
+            background: #f3f4f6; /* light:bg-gray-100 */
+        }
+        html.light ::-webkit-scrollbar-thumb {
+            background-color: #9ca3af; /* light:bg-gray-400 */
+            border: 3px solid #f3f4f6; /* light:bg-gray-100 */
+        }
+        html.light ::-webkit-scrollbar-thumb:hover {
+            background-color: #6b7280; /* light:bg-gray-500 */
+        }
+
+        /* Hide modal by default */
+        #promptModal {
+            display: none;
+        }
+    </style>
+    <script>
+        // Set Tailwind dark mode config
+        tailwind.config = {
+            darkMode: 'class', // 'class' enables manual toggling
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+    <!-- Header Navigation -->
+    <nav class="sticky top-0 z-40 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo/Title -->
+                <div class="flex-shrink-0 flex items-center">
+                    <h1 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">Prompt Portfolio</h1>
+                </div>
+                
+                <!-- Navigation & Toggle -->
+                <div class="flex items-center space-x-4">
+                    <!-- Filter Buttons (Desktop) -->
+                    <div class="hidden sm:flex sm:space-x-2" id="desktop-filters">
+                        <button class="filter-btn bg-indigo-100 dark:bg-gray-800 text-indigo-700 dark:text-indigo-300 px-3 py-2 rounded-md text-sm font-medium" data-filter="all">All</button>
+                        <button class="filter-btn bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 px-3 py-2 rounded-md text-sm font-medium" data-filter="Creative">Creative</button>
+                        <button class="filter-btn bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 px-3 py-2 rounded-md text-sm font-medium" data-filter="Technical">Technical</button>
+                        <button class="filter-btn bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 px-3 py-2 rounded-md text-sm font-medium" data-filter="Marketing">Marketing</button>
+                    </div>
+
+                    <!-- Dark Mode Toggle -->
+                    <button id="theme-toggle" class="p-2 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <!-- Sun Icon -->
+                        <svg id="theme-toggle-light-icon" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <!-- Moon Icon -->
+                        <svg id="theme-toggle-dark-icon" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Filter Buttons (Mobile) -->
+            <div class="sm:hidden pb-3 space-x-2" id="mobile-filters">
+                <button class="filter-btn bg-indigo-100 dark:bg-gray-800 text-indigo-700 dark:text-indigo-300 px-3 py-2 rounded-md text-sm font-medium" data-filter="all">All</button>
+                <button class="filter-btn bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 px-3 py-2 rounded-md text-sm font-medium" data-filter="Creative">Creative</button>
+                <button class="filter-btn bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 px-3 py-2 rounded-md text-sm font-medium" data-filter="Technical">Technical</button>
+                <button class="filter-btn bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 px-3 py-2 rounded-md text-sm font-medium" data-filter="Marketing">Marketing</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Featured Prompt -->
+        <section class="mb-12" id="featured-prompt-container">
+            <!-- Featured prompt will be injected here -->
+        </section>
+
+        <!-- Prompt Grid -->
+        <section>
+            <h2 class="text-2xl font-semibold mb-6">All Prompts</h2>
+            <div id="prompt-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Prompt cards will be injected here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal -->
+    <div id="promptModal" class="fixed inset-0 z-50 overflow-y-auto bg-gray-900 bg-opacity-75 transition-opacity">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            
+            <!-- Modal Content -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden w-full max-w-2xl transform transition-all" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-medium leading-6" id="modal-title">Prompt Title</h3>
+                    <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <span class="sr-only">Close</span>
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Modal Body -->
+                <div class="p-6">
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4" id="modal-description">Description goes here.</p>
+                    
+                    <div class="relative">
+                        <!-- Prompt Text Area -->
+                        <textarea id="modal-prompt-text" readonly class="w-full h-64 p-4 bg-gray-100 dark:bg-gray-900 rounded-md border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200 font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                        
+                        <!-- Copy Button -->
+                        <button id="copyButton" class="absolute top-3 right-3 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
+                            Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Temporary Textarea for Copying -->
+    <textarea id="copy-helper" style="position: absolute; left: -9999px;"></textarea>
+
+    <!-- JavaScript -->
+    <script>
+        // --- DATABASE ---
+        // Add your prompts here!
+        const allPrompts = [
+            {
+                id: 1,
+                title: "Persona Generator",
+                description: "Creates a detailed user persona for a specified product or service, including demographics, goals, and pain points.",
+                category: "Marketing",
+                prompt: "Act as an expert market researcher. Generate a detailed user persona for a new mobile app designed for budget-conscious millennials who want to track their subscriptions.\n\nInclude the following sections:\n1.  **Demographics:** (Name, Age, Occupation, Income, Location)\n2.  **Bio:** (A short paragraph about their life, habits, and relationship with technology)\n3.  **Goals:** (What do they want to achieve by using this app?)\n4.  **Pain Points:** (What are their current frustrations with managing subscriptions?)\n5.  **Preferred Channels:** (Where would they likely discover this app?)"
+            },
+            {
+                id: 2,
+                title: "Python Code Refactor",
+                description: "Analyzes a Python code snippet and suggests improvements for readability, performance, and adherence to PEP 8 standards.",
+                category: "Technical",
+                prompt: "You are a senior Python developer and code reviewer. Analyze the following Python code snippet. Provide a refactored version of the code and explain your changes in a bulleted list. Focus on improving readability, efficiency, and adherence to PEP 8 principles.\n\n[PASTE YOUR PYTHON CODE HERE]"
+            },
+            {
+                id: 3,
+                title: "Creative Story Starter",
+                description: "Generates an engaging opening paragraph for a story based on a given genre and a set of three keywords.",
+                category: "Creative",
+                prompt: "Write a compelling, 3-paragraph story opening in the [GENRE, e.g., 'sci-fi noir'] genre. The story must incorporate the following three keywords: 'chronometer', 'shadow', and 'archive'. Set a mysterious tone and introduce a clear protagonist."
+            },
+            {
+                id: 4,
+                title: "Email Subject Line A/B Test",
+                description: "Generates 5 pairs of A/B test subject lines for a marketing email campaign, each pair targeting a different psychological angle.",
+                category: "Marketing",
+                prompt: "Generate 5 pairs of email subject lines (A and B versions) for a 20% off flash sale on summer apparel.\n\nEach pair should test a different psychological angle:\n1.  **Urgency:** (e.g., 'Ends Tonight' vs. 'Last Chance')\n2.  **Curiosity:** (e.g., 'A Surprise Inside' vs. 'You Won't Believe This Deal')\n3.  **Benefit-driven:** (e.g., 'Save 20% on Your Summer Look' vs. 'Your New Wardrobe, 20% Off')\n4.  **Personalization:** (e.g., 'Jon, A Special Offer For You' vs. 'We Picked This For You')\n5.  **Scarcity:** (e.g., 'Limited Stock Alert' vs. 'Don't Miss Out - Selling Fast')"
+            },
+            {
+                id: 5,
+                title: "SQL Query Optimizer",
+                description: "Takes a simple SQL query and explains potential performance bottlenecks, then provides an optimized version.",
+                category: "Technical",
+                prompt: "Analyze the following SQL query for potential performance bottlenecks. Explain why it might be slow and provide an optimized version. Assume the `users` table has 10 million rows and the `orders` table has 50 million rows.\n\n**Query:**\n<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+    <!-- Header Navigation -->
+    <nav class="sticky top-0 z-40 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo/Title -->
+                <div class="flex-shrink-0 flex items-center">
+                    <h1 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">Prompt Portfolio</h1>
+                </div>
+                
+                <!-- Navigation & Toggle -->
+                <div class="flex items-center space-x-4">
+                    <!-- Filter Buttons (Desktop) -->
+                    <div class="hidden sm:flex sm:space-x-2" id="desktop-filters">
+                        <button class="filter-btn bg-indigo-100 dark:bg-gray-800 text-indigo-700 dark:text-indigo-300 px-3 py-2 rounded-md text-sm font-medium" data-filter="all">All</button>
+                        <button class="filter-btn bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 px-3 py-2 rounded-md text-sm font-medium" data-filter="Creative">Creative</button>
+                        <button class="filter-btn bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 px-3 py-2 rounded-md text-sm font-medium" data-filter="Technical">Technical</button>
+                        <button class="filter-btn bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 px-3 py-2 rounded-md text-sm font-medium" data-filter="Marketing">Marketing</button>
+                    </div>
+
+                    <!-- Dark Mode Toggle -->
+                    <button id="theme-toggle" class="p-2 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <!-- Sun Icon -->
+                        <svg id="theme-toggle-light-icon" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <!-- Moon Icon -->
+                        <svg id="theme-toggle-dark-icon" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Filter Buttons (Mobile) -->
+            <div class="sm:hidden pb-3 space-x-2" id="mobile-filters">
+                <button class="filter-btn bg-indigo-100 dark:bg-gray-800 text-indigo-700 dark:text-indigo-300 px-3 py-2 rounded-md text-sm font-medium" data-filter="all">All</button>
+                <button class="filter-btn bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 px-3 py-2 rounded-md text-sm font-medium" data-filter="Creative">Creative</button>
+                <button class="filter-btn bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 px-3 py-2 rounded-md text-sm font-medium" data-filter="Technical">Technical</button>
+                <button class="filter-btn bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 px-3 py-2 rounded-md text-sm font-medium" data-filter="Marketing">Marketing</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Featured Prompt -->
+        <section class="mb-12" id="featured-prompt-container">
+            <!-- Featured prompt will be injected here -->
+        </section>
+
+        <!-- Prompt Grid -->
+        <section>
+            <h2 class="text-2xl font-semibold mb-6">All Prompts</h2>
+            <div id="prompt-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Prompt cards will be injected here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal -->
+    <div id="promptModal" class="fixed inset-0 z-50 overflow-y-auto bg-gray-900 bg-opacity-75 transition-opacity">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            
+            <!-- Modal Content -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden w-full max-w-2xl transform transition-all" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-medium leading-6" id="modal-title">Prompt Title</h3>
+                    <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <span class="sr-only">Close</span>
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Modal Body -->
+                <div class="p-6">
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4" id="modal-description">Description goes here.</p>
+                    
+                    <div class="relative">
+                        <!-- Prompt Text Area -->
+                        <textarea id="modal-prompt-text" readonly class="w-full h-64 p-4 bg-gray-100 dark:bg-gray-900 rounded-md border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200 font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                        
+                        <!-- Copy Button -->
+                        <button id="copyButton" class="absolute top-3 right-3 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
+                            Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Temporary Textarea for Copying -->
+    <textarea id="copy-helper" style="position: absolute; left: -9999px;"></textarea>
+
+</body>
+    <!-- JavaScript -->
+    <script>
+        // --- DATABASE ---
+        // Add your prompts here!
+        const allPrompts = [
+            {
+                id: 1,
+                title: "Persona Generator",
+                description: "Creates a detailed user persona for a specified product or service, including demographics, goals, and pain points.",
+                category: "Marketing",
+                prompt: "Act as an expert market researcher. Generate a detailed user persona for a new mobile app designed for budget-conscious millennials who want to track their subscriptions.\n\nInclude the following sections:\n1.  **Demographics:** (Name, Age, Occupation, Income, Location)\n2.  **Bio:** (A short paragraph about their life, habits, and relationship with technology)\n3.  **Goals:** (What do they want to achieve by using this app?)\n4.  **Pain Points:** (What are their current frustrations with managing subscriptions?)\n5.  **Preferred Channels:** (Where would they likely discover this app?)"
+            },
+            {
+                id: 2,
+                title: "Python Code Refactor",
+                description: "Analyzes a Python code snippet and suggests improvements for readability, performance, and adherence to PEP 8 standards.",
+                category: "Technical",
+                prompt: "You are a senior Python developer and code reviewer. Analyze the following Python code snippet. Provide a refactored version of the code and explain your changes in a bulleted list. Focus on improving readability, efficiency, and adherence to PEP 8 principles.\n\n[PASTE YOUR PYTHON CODE HERE]"
+            },
+            {
+                id: 3,
+                title: "Creative Story Starter",
+                description: "Generates an engaging opening paragraph for a story based on a given genre and a set of three keywords.",
+                category: "Creative",
+                prompt: "Write a compelling, 3-paragraph story opening in the [GENRE, e.g., 'sci-fi noir'] genre. The story must incorporate the following three keywords: 'chronometer', 'shadow', and 'archive'. Set a mysterious tone and introduce a clear protagonist."
+            },
+            {
+                id: 4,
+                title: "Email Subject Line A/B Test",
+                description: "Generates 5 pairs of A/B test subject lines for a marketing email campaign, each pair targeting a different psychological angle.",
+                category: "Marketing",
+                prompt: "Generate 5 pairs of email subject lines (A and B versions) for a 20% off flash sale on summer apparel.\n\nEach pair should test a different psychological angle:\n1.  **Urgency:** (e.g., 'Ends Tonight' vs. 'Last Chance')\n2.  **Curiosity:** (e.g., 'A Surprise Inside' vs. 'You Won't Believe This Deal')\n3.  **Benefit-driven:** (e.g., 'Save 20% on Your Summer Look' vs. 'Your New Wardrobe, 20% Off')\n4.  **Personalization:** (e.g., 'Jon, A Special Offer For You' vs. 'We Picked This For You')\n5.  **Scarcity:** (e.g., 'Limited Stock Alert' vs. 'Don't Miss Out - Selling Fast')"
+            },
+            {
+                id: 5,
+                title: "SQL Query Optimizer",
+                description: "Takes a simple SQL query and explains potential performance bottlenecks, then provides an optimized version.",
+                category: "Technical",
+                prompt: "Analyze the following SQL query for potential performance bottlenecks. Explain why it might be slow and provide an optimized version. Assume the `users` table has 10 million rows and the `orders` table has 50 million rows.\n\n**Query:**\n
+http://googleusercontent.com/immersive_entry_chip/0
+
+---
+
+After you've pasted all three chunks, just scroll down on the GitHub page, find the "Commit new file" button, and press it.
+
+Your `index.html` file is now created and saved. From there, just follow the GitHub Pages steps I mentioned before (Settings -> Pages -> Select `main` branch -> Save) to make it live.
+
+This chunk-by-chunk method is way more stable on a phone. Let me know when it's live!
